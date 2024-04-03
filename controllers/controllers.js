@@ -19,14 +19,14 @@ exports.getUsers = (req, res) => {
   });
 };
 
-exports.getUserByID = (req, res) => {
+exports.getUserImage = (req, res) => {
   if (!req.body) {
     res.status(400).send({
       message: "Content cannot be empty",
     });
     return;
   }
-  Users.getUserByID(req.params.id, (err, user) => {
+  Users.getUserImage(req.params.id, (err, user) => {
     if (err) {
       return res.status(500).send({
         message: err.message || "Some error occured",
@@ -75,5 +75,64 @@ exports.getUserByID = (req, res) => {
   
       res.status(201).send(result); 
     });
+};
+
+// Update user by ID
+exports.updateUser = (req, res) => {
+  if (!req.body) {
+    res.status(400).send({
+      message: "Content cannot be empty",
+    });
+    return;
+  }
+
+  const userId = req.params.id;
+  const updatedUserData = {
+    username: req.body.username,
+    password: req.body.password,
+    role: req.body.role
+  };
+
+  Users.updateUser(userId, updatedUserData, (err, updatedUser) => {
+    if (err) {
+      if (err.kind === "not_found") {
+        return res.status(404).send({
+          message: `User with ID ${userId} not found`,
+        });
+      }
+      return res.status(500).send({
+        message: `Error updating user with ID ${userId}`,
+      });
+    }
+    res.send(updatedUser);
+  });
+};
+
+//USER DELETER
+exports.deleteUserByID = (req, res) => {
+  if (!req.body) {
+    res.status(400).send({
+      message: "Content cannot be empty",
+    });
+    return;
+  }
+
+  Users.deleteUserByID(req.params.id, (err, affectedRows) => {
+    if (err) {
+      return res.status(500).send({
+        message: err.message || "Some error occurred while deleting the user",
+      });
+    }
+
+    if (affectedRows === 0) {
+      return res.status(404).send({
+        message: `User with ID ${req.params.id} not found`,
+      });
+    }
+
+    res.send({
+      message: "User deleted successfully",
+    });
+  });
 };
  

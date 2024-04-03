@@ -93,44 +93,26 @@ Users.getUserImage = (user_id, result) => {
 };
 
 //USER EDITTOR
-// Update user
+// Update user method
 Users.updateUser = (userId, updatedUser, result) => {
   sql.query(
     "UPDATE users SET username = ?, password = ?, role = ? WHERE user_id = ?",
-    [
-      updatedUser.username, 
-      updatedUser.password, 
-      updatedUser.role, 
-      userId],
+    [updatedUser.username, updatedUser.password, updatedUser.role, userId],
     (error, res) => {
       if (error) {
         console.log("Error in updating user:", error);
         result(error, null);
         return;
       }
-
+      if (res.affectedRows === 0) {
+        result({ kind: "not_found" }, null);
+        return;
+      }
+      console.log(`${updatedUser.password}`);
       result(null, { id: userId, ...updatedUser });
     }
   );
 };
-//DELETE USER by id
-
-Users.deleteUserByID = (userId, result) => {
-  sql.query(
-    "DELETE FROM users WHERE user_id = ?",
-    [userId],
-    (err, res) => {
-      if (err) {
-        console.log("Error in deleting user:", err);
-        result(err, null);
-        return;
-      }
-      console.log(`Deleted user with ID: ${userId}`);
-      result(null, res.affectedRows);
-    }
-  );
-};
-
 
 
 module.exports.Users = Users;
